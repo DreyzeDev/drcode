@@ -1,0 +1,21 @@
+name: Test installer
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: bash -n install.sh uninstall.sh bin/drcode tests/test-installer.sh
+      - name: Validate JSON
+        run: python3 -m json.tool config/opencode.json >/dev/null && python3 -m json.tool config/cli.json >/dev/null && python3 -m json.tool assets/drcode.json >/dev/null
+      - name: Test isolated installation
+        run: bash tests/test-installer.sh

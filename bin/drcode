@@ -1,0 +1,183 @@
+#!/usr/bin/env bash
+# DRCODE_LAUNCHER=1
+
+set -Eeuo pipefail
+
+readonly DRCODE_HOME="${DRCODE_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/drcode}"
+readonly DRCODE_CONFIG_HOME="${DRCODE_CONFIG_HOME:-${XDG_CONFIG_HOME:-$HOME/.config}/drcode}"
+readonly DRCODE_ENGINE="${DRCODE_ENGINE:-$DRCODE_HOME/bin/opencode}"
+readonly DRCODE_OPENCODE_CONFIG="$DRCODE_CONFIG_HOME/opencode"
+readonly DRCODE_KEY_FILE="$DRCODE_CONFIG_HOME/agentrouter.key"
+readonly DRCODE_INSTALL_URL="${DRCODE_INSTALL_URL:-https://raw.githubusercontent.com/DreyzeDev/drcode/main/install.sh}"
+readonly DRCODE_UNINSTALL_URL="${DRCODE_UNINSTALL_URL:-https://raw.githubusercontent.com/DreyzeDev/drcode/main/uninstall.sh}"
+
+fail() {
+  printf 'DrCode: %s\n' "$*" >&2
+  exit 1
+}
+
+configure_key() {
+  local key=""
+  local temporary=""
+
+  if [[ ! -r /dev/tty || ! -w /dev/tty ]]; then
+    fail "для настройки ключа нужен интерактивный терминал"
+  fi
+
+  printf 'AgentRouter API key: ' >/dev/tty
+  IFS= read -r -s key </dev/tty
+  printf '\n' >/dev/tty
+  [[ -n "$key" ]] || fail "ключ не может быть пустым"
+
+  umask 077
+  mkdir -p "$DRCODE_CONFIG_HOME"
+  temporary="$(mktemp "$DRCODE_CONFIG_HOME/.agentrouter.key.XXXXXX")"
+  printf '%s\n' "$key" >"$temporary"
+  chmod 600 "$temporary"
+  mv -f "$temporary" "$DRCODE_KEY_FILE"
+  printf 'Ключ сохранён в %s (права 600).\n' "$DRCODE_KEY_FILE"
+}
+
+doctor() {
+  local failed=0
+
+  printf 'DrCode diagnostics\n\n'
+  if [[ -x "$DRCODE_ENGINE" ]]; then
+    printf '  [ok] engine: %s\n' "$DRCODE_ENGINE"
+    printf '       %s\n' "$("$DRCODE_ENGINE" --version 2>/dev/null || printf 'version unavailable')"
+  else
+    printf '  [!!] engine not found: %s\n' "$DRCODE_ENGINE"
+    failed=1
+  fi
+
+  if [[ -s "$DRCODE_KEY_FILE" ]]; then
+    printf '  [ok] AgentRouter key: configured\n'
+  else
+    printf '  [!!] AgentRouter key: missing (run: drcode setup)\n'
+    failed=1
+  fi
+
+  for file in opencode.json cli.json AGENTS.md; do
+    if [[ -s "$DRCODE_OPENCODE_CONFIG/$file" ]]; then
+      printf '  [ok] config: %s\n' "$file"
+    else
+      printf '  [!!] config missing: %s\n' "$DRCODE_OPENCODE_CONFIG/$file"
+      failed=1
+    fi
+  done
+
+  return "$failed"
+}
+
+run_remote_script() {
+  local url="$1"
+  shift
+  command -v curl >/dev/null 2>&1 || fail "curl не установлен"
+
+  local temporary
+  temporary="$(mktemp "${TMPDIR:-/tmp}/drcode-script.XXXXXX")"
+  trap 'rm -f "$temporary"' RETURN
+  curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "$url" -o "$temporary"
+  bash "$temporary" "$@"
+  rm -f "$temporary"
+  trap - RETURN
+}
+
+resolve_model() {
+  case "$1" in
+    sol | gpt-6.1-sol)
+      printf '%s\n' 'agentrouter/gpt-6.1-sol'
+      ;;
+    astra | gpt-6-astra)
+      printf '%s\n' 'agentrouter/gpt-6-astra'
+      ;;
+    gpt5 | gpt-5.6-sol)
+      printf '%s\n' 'agentrouter/gpt-5.6-sol'
+      ;;
+    */*)
+      printf '%s\n' "$1"
+      ;;
+    *)
+      printf 'agentrouter/%s\n' "$1"
+      ;;
+  esac
+}
+
+case "${1:-}" in
+  setup)
+    configure_key
+    exit 0
+    ;;
+  doctor)
+    doctor
+    exit $?
+    ;;
+  self-update)
+    shift
+    run_remote_script "$DRCODE_INSTALL_URL" "$@"
+    exit 0
+    ;;
+  self-uninstall)
+    shift
+    run_remote_script "$DRCODE_UNINSTALL_URL" "$@"
+    exit 0
+    ;;
+esac
+
+[[ -x "$DRCODE_ENGINE" ]] || fail "движок не найден; переустановите DrCode"
+
+if [[ ! -s "$DRCODE_KEY_FILE" ]]; then
+  printf 'DrCode: ключ AgentRouter не настроен. Выполните: drcode setup\n' >&2
+fi
+
+mkdir -p "$DRCODE_HOME/data"
+export OPENCODE_CLIENT="drcode"
+export OPENCODE_CONFIG_DIR="$DRCODE_OPENCODE_CONFIG"
+export OPENCODE_DB="$DRCODE_HOME/data/drcode.db"
+
+arguments=()
+while (($#)); do
+  case "$1" in
+    -m | --model)
+      (($# >= 2)) || fail "после $1 требуется название модели"
+      arguments+=("$1" "$(resolve_model "$2")")
+      shift 2
+      ;;
+    --model=*)
+      arguments+=("--model=$(resolve_model "${1#*=}")")
+      shift
+      ;;
+    *)
+      arguments+=("$1")
+      shift
+      ;;
+  esac
+done
+
+# A private server keeps DrCode configuration and credentials independent from
+# another OpenCode installation. Explicit server options always take priority.
+standalone=true
+for argument in "${arguments[@]}"; do
+  case "$argument" in
+    --standalone | --server | --server=*)
+      standalone=false
+      break
+      ;;
+  esac
+done
+
+case "${arguments[0]:-}" in
+  acp | auth | debug | mcp | pair | plugin | serve | service | session | uninstall | update | upgrade)
+    standalone=false
+    ;;
+esac
+
+if "$standalone"; then
+  case "${arguments[0]:-}" in
+    api | mini | models | run | stats)
+      exec "$DRCODE_ENGINE" "${arguments[0]}" --standalone "${arguments[@]:1}"
+      ;;
+  esac
+  exec "$DRCODE_ENGINE" --standalone "${arguments[@]}"
+fi
+exec "$DRCODE_ENGINE" "${arguments[@]}"
