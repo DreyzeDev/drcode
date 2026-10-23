@@ -6,8 +6,7 @@
       "name": "AgentRouter (DrCode)",
       "package": "@opencode/ai/providers/openai-compatible",
       "settings": {
-        "baseURL": "https://agentrouter.org/v1",
-        "apiKey": "{file:../agentrouter.key}"
+        "baseURL": "https://agentrouter.org/v1"
       },
       "models": {
         "gpt-6.1-sol": {

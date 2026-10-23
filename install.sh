@@ -114,6 +114,7 @@ archive_entries="$(tar -tzf "$archive")"
 tar -xzf "$archive" -C "$temporary_directory"
 [[ -f "$temporary_directory/opencode" ]] || fail "движок отсутствует в архиве"
 
+install -d -m 700 "$DRCODE_HOME"
 install -d -m 755 "$DRCODE_ENGINE_DIR" "$DRCODE_BIN_DIR"
 install -m 755 "$temporary_directory/opencode" "$DRCODE_ENGINE_DIR/.opencode.new"
 mv -f "$DRCODE_ENGINE_DIR/.opencode.new" "$DRCODE_ENGINE_DIR/opencode"
@@ -165,8 +166,9 @@ printf '\nDrCode installed successfully.\n'
 info "launcher: $DRCODE_BIN_DIR/drcode"
 info "config:   $DRCODE_CONFIG_HOME"
 printf '\nNext steps:\n'
-printf '  1. drcode setup\n'
-printf '  2. drcode ~/path/to/project\n'
+printf '  1. drcode ~/path/to/project\n'
+printf '  2. Open /connect and select AgentRouter\n'
+printf '  3. Enter your own AgentRouter API key\n'
 
 case ":$PATH:" in
   *":$DRCODE_BIN_DIR:"*) ;;

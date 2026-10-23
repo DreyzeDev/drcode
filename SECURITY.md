@@ -2,18 +2,13 @@
 
 ## API keys
 
-The repository and installer do not contain an AgentRouter API key. `drcode setup`
-asks for the key in a hidden terminal prompt and stores it locally at:
+The repository and installer do not contain an AgentRouter API key. Each user
+connects their own account through DrCode's built-in `/connect` dialog. OpenCode
+stores the credential in DrCode's dedicated local SQLite database under
+`~/.local/share/drcode/data/`.
 
-```text
-~/.config/drcode/agentrouter.key
-```
-
-The file is created with mode `600`. OpenCode reads it through a file reference,
-so the launcher does not export the key to the environment inherited by shell
-tools.
-
-Never commit this file, paste it into an issue, or pass it as a command-line
+The launcher does not export the key to shell tools or write it to project
+configuration. Never paste a key into an issue or pass it as a command-line
 argument. Revoke the key in AgentRouter immediately if it may have been exposed.
 
 ## Reviewing the installer

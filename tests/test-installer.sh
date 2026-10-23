@@ -42,10 +42,6 @@ config="$home/.config/drcode/opencode"
 [[ -s "$home/.local/share/drcode/.drcode-install" ]]
 [[ -s "$home/.config/drcode/.drcode-install" ]]
 
-printf 'test-key\n' >"$home/.config/drcode/agentrouter.key"
-chmod 600 "$home/.config/drcode/agentrouter.key"
-[[ "$(stat -c '%a' "$home/.config/drcode/agentrouter.key")" == "600" ]]
-
 HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" "$launcher" doctor >/dev/null
 
 arguments="$temporary_directory/arguments"
@@ -61,8 +57,9 @@ HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" 
 config_checksum="$(sha256sum "$config/opencode.json")"
 HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" bash "$PROJECT_ROOT/uninstall.sh"
 [[ ! -e "$launcher" ]]
-[[ ! -e "$home/.local/share/drcode" ]]
-[[ -s "$home/.config/drcode/agentrouter.key" ]]
+[[ ! -e "$home/.local/share/drcode/bin" ]]
+[[ -s "$home/.local/share/drcode/.drcode-install" ]]
+[[ -s "$home/.config/drcode/.drcode-install" ]]
 
 HOME="$home" \
 XDG_CONFIG_HOME="$home/.config" \

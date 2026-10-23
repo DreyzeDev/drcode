@@ -14,8 +14,8 @@ case "${1:-}" in
     cat <<'EOF'
 Usage: bash uninstall.sh [--purge]
 
-Removes the DrCode launcher and engine. Configuration and the AgentRouter key
-are preserved unless --purge is supplied.
+Removes the DrCode launcher and engine. Configuration, sessions, and connected
+accounts are preserved unless --purge is supplied.
 EOF
     exit 0
     ;;
@@ -47,13 +47,16 @@ if [[ -f "$launcher" ]]; then
   fi
 fi
 
-safe_remove_directory "$DRCODE_HOME"
-
 if "$purge"; then
+  safe_remove_directory "$DRCODE_HOME"
   safe_remove_directory "$DRCODE_CONFIG_HOME"
   printf 'DrCode and its configuration were removed.\n'
   exit 0
 fi
 
-printf 'DrCode was removed. Configuration was preserved at %s\n' "$DRCODE_CONFIG_HOME"
-printf 'Run with --purge to remove configuration and the API key too.\n'
+if [[ -d "$DRCODE_HOME" && -f "$DRCODE_HOME/.drcode-install" ]]; then
+  rm -rf "$DRCODE_HOME/bin"
+fi
+
+printf 'DrCode was removed. Configuration, sessions, and connected accounts were preserved.\n'
+printf 'Run with --purge to remove all DrCode data too.\n'

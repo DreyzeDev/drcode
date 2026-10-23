@@ -18,7 +18,7 @@ DrCode is a small, security-conscious Linux distribution layer around OpenCode. 
 - OpenCode's terminal coding workflow and tools.
 - AgentRouter models including GPT-6.1 Sol, GPT-6 Astra, and GPT-5.6 Sol.
 - Dedicated configuration and session database, separate from a regular OpenCode setup.
-- API key stored in a local file with mode `600`, not committed or exported by the launcher.
+- Built-in connection dialog: every user enters their own AgentRouter API key locally.
 - Short model aliases: `sol`, `astra`, and `gpt5`.
 - User-local installation: root access is not required.
 - Linux x64, x64 baseline, and ARM64 support on glibc and musl systems.
@@ -37,16 +37,6 @@ The installer downloads the latest official OpenCode V2 Linux binary over HTTPS 
 
 For a review-first installation, see [Security](SECURITY.md#reviewing-the-installer).
 
-### Configure AgentRouter
-
-After installation, enter your API key in the hidden prompt:
-
-```bash
-drcode setup
-```
-
-The key is stored at `~/.config/drcode/agentrouter.key` with permissions `600`. It is never part of this repository.
-
 ### Start DrCode
 
 Run DrCode in the current directory:
@@ -60,6 +50,10 @@ Or open a specific project:
 ```bash
 drcode ~/code/my-project
 ```
+
+Open `/connect`, choose **AgentRouter (DrCode)**, and enter your own API key in the connection dialog. The AgentRouter Base URL (`https://agentrouter.org/v1`) is already configured. Then open `/models` and choose a model.
+
+Credentials are stored by OpenCode only in DrCode's dedicated local database. They are never downloaded from or uploaded to this repository.
 
 If `~/.local/bin` is not in `PATH`, add it to your shell configuration:
 
@@ -99,9 +93,8 @@ OpenCode commands, tools, sessions, permissions, and project configuration remai
 | --- | --- |
 | `~/.local/bin/drcode` | DrCode launcher. |
 | `~/.local/share/drcode/bin/opencode` | Official OpenCode engine. |
-| `~/.local/share/drcode/data/drcode.db` | Dedicated session database. |
+| `~/.local/share/drcode/data/drcode.db` | Dedicated sessions and provider accounts. |
 | `~/.config/drcode/opencode/` | OpenCode and terminal configuration. |
-| `~/.config/drcode/agentrouter.key` | Local AgentRouter key, mode `600`. |
 
 Interactive and model-execution commands use a private OpenCode server by default, preventing another OpenCode installation from supplying a different global configuration. Explicit `--server` and `--standalone` options are respected.
 
@@ -117,13 +110,13 @@ Existing `opencode.json`, `cli.json`, and `AGENTS.md` files are preserved. The m
 
 ## Uninstalling
 
-Remove the launcher and engine while preserving configuration and the API key:
+Remove the launcher and engine while preserving configuration, sessions, and connected accounts:
 
 ```bash
 drcode self-uninstall
 ```
 
-Remove everything, including configuration, sessions, and the API key:
+Remove everything, including configuration, sessions, and connected accounts:
 
 ```bash
 drcode self-uninstall --purge

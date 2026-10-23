@@ -17,5 +17,15 @@ jobs:
         run: bash -n install.sh uninstall.sh bin/drcode tests/test-installer.sh
       - name: Validate JSON
         run: python3 -m json.tool config/opencode.json >/dev/null && python3 -m json.tool config/cli.json >/dev/null && python3 -m json.tool assets/drcode.json >/dev/null
+      - name: Verify AgentRouter configuration
+        run: |
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          config = json.loads(Path("config/opencode.json").read_text())
+          settings = config["providers"]["agentrouter"]["settings"]
+          assert settings == {"baseURL": "https://agentrouter.org/v1"}
+          PY
       - name: Test isolated installation
         run: bash tests/test-installer.sh
