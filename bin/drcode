@@ -9,6 +9,7 @@ readonly DRCODE_ENGINE="${DRCODE_ENGINE:-$DRCODE_HOME/bin/opencode}"
 readonly DRCODE_OPENCODE_CONFIG="$DRCODE_CONFIG_HOME/opencode"
 readonly DRCODE_INSTALL_URL="${DRCODE_INSTALL_URL:-https://raw.githubusercontent.com/DreyzeDev/drcode/main/install.sh}"
 readonly DRCODE_UNINSTALL_URL="${DRCODE_UNINSTALL_URL:-https://raw.githubusercontent.com/DreyzeDev/drcode/main/uninstall.sh}"
+readonly DRCODE_REPOSITORY_REF="${DRCODE_REPOSITORY_REF:-main}"
 
 fail() {
   printf 'DrCode: %s\n' "$*" >&2
@@ -43,13 +44,23 @@ doctor() {
 
 run_remote_script() {
   local url="$1"
-  shift
-  command -v curl >/dev/null 2>&1 || fail "curl не установлен"
+  local repository_path="$2"
+  shift 2
 
   local temporary
   temporary="$(mktemp "${TMPDIR:-/tmp}/drcode-script.XXXXXX")"
   trap 'rm -f "$temporary"' RETURN
-  curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "$url" -o "$temporary"
+
+  if command -v curl >/dev/null 2>&1 && curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "$url" -o "$temporary" 2>/dev/null; then
+    :
+  elif command -v gh >/dev/null 2>&1 && gh api \
+    --header 'Accept: application/vnd.github.raw+json' \
+    "repos/DreyzeDev/drcode/contents/$repository_path?ref=$DRCODE_REPOSITORY_REF" >"$temporary"; then
+    :
+  else
+    fail "не удалось получить $repository_path из приватного репозитория; выполните вход через gh auth login"
+  fi
+
   bash "$temporary" "$@"
   rm -f "$temporary"
   trap - RETURN
@@ -82,12 +93,15 @@ case "${1:-}" in
     ;;
   self-update)
     shift
-    run_remote_script "$DRCODE_INSTALL_URL" "$@"
+    run_remote_script "$DRCODE_INSTALL_URL" "install.sh" "$@"
     exit 0
     ;;
   self-uninstall)
     shift
-    run_remote_script "$DRCODE_UNINSTALL_URL" "$@"
+    if [[ -f "$DRCODE_HOME/uninstall.sh" ]]; then
+      exec bash "$DRCODE_HOME/uninstall.sh" "$@"
+    fi
+    run_remote_script "$DRCODE_UNINSTALL_URL" "uninstall.sh" "$@"
     exit 0
     ;;
 esac

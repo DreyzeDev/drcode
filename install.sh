@@ -13,6 +13,11 @@ readonly DRCODE_ENGINE_DIR="$DRCODE_HOME/bin"
 readonly DRCODE_OPENCODE_CONFIG="$DRCODE_CONFIG_HOME/opencode"
 
 temporary_directory=""
+source_directory="${DRCODE_SOURCE_DIR:-}"
+script_directory="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || true)"
+if [[ -z "$source_directory" && -f "$script_directory/bin/drcode" && -f "$script_directory/assets/drcode.json" ]]; then
+  source_directory="$script_directory"
+fi
 
 cleanup() {
   if [[ -n "$temporary_directory" && -d "$temporary_directory" ]]; then
@@ -125,13 +130,23 @@ asset() {
   local source_path="$1"
   local output_path="$2"
 
-  if [[ -n "${DRCODE_SOURCE_DIR:-}" ]]; then
-    [[ -f "$DRCODE_SOURCE_DIR/$source_path" ]] || fail "файл установщика не найден: $source_path"
-    cp "$DRCODE_SOURCE_DIR/$source_path" "$output_path"
+  if [[ -n "$source_directory" ]]; then
+    [[ -f "$source_directory/$source_path" ]] || fail "файл установщика не найден: $source_path"
+    cp "$source_directory/$source_path" "$output_path"
     return
   fi
 
-  curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "$DRCODE_RAW_BASE/$source_path" -o "$output_path"
+  if curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "$DRCODE_RAW_BASE/$source_path" -o "$output_path" 2>/dev/null; then
+    return
+  fi
+  rm -f "$output_path"
+
+  if command -v gh >/dev/null 2>&1 && gh api \
+    --header 'Accept: application/vnd.github.raw+json' \
+    "repos/DreyzeDev/drcode/contents/$source_path?ref=$DRCODE_REF" >"$output_path"; then
+    return
+  fi
+  fail "не удалось получить $source_path; клонируйте приватный репозиторий через gh"
 }
 
 asset "bin/drcode" "$temporary_directory/drcode"
@@ -161,6 +176,9 @@ install_default "config/AGENTS.md" "$DRCODE_OPENCODE_CONFIG/AGENTS.md"
 
 asset "assets/drcode.json" "$temporary_directory/drcode.json"
 install -m 644 "$temporary_directory/drcode.json" "$DRCODE_OPENCODE_CONFIG/themes/drcode.json"
+
+asset "uninstall.sh" "$temporary_directory/uninstall.sh"
+install -m 755 "$temporary_directory/uninstall.sh" "$DRCODE_HOME/uninstall.sh"
 
 printf '\nDrCode installed successfully.\n'
 info "launcher: $DRCODE_BIN_DIR/drcode"

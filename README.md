@@ -27,13 +27,16 @@ Model availability and usage limits depend on the connected AgentRouter account.
 
 ## Install
 
-### One command
+### Private repository
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/DreyzeDev/drcode/main/install.sh | bash
+gh auth login
+gh repo clone DreyzeDev/drcode
+cd drcode
+bash install.sh
 ```
 
-The installer downloads the latest official OpenCode V2 Linux binary over HTTPS and places all DrCode files under the current user account. It does not use `sudo` and does not modify shell startup files.
+The repository is private. Installation therefore requires a GitHub account with access to it. The installer downloads the latest official OpenCode V2 Linux binary over HTTPS and places all DrCode files under the current user account. It does not use `sudo` and does not modify shell startup files.
 
 For a review-first installation, see [Security](SECURITY.md#reviewing-the-installer).
 
@@ -100,7 +103,7 @@ Interactive and model-execution commands use a private OpenCode server by defaul
 
 ## Updating
 
-Update the launcher, configuration assets, and OpenCode engine:
+Update the launcher, configuration assets, and OpenCode engine. GitHub CLI must be authenticated with an account that can access the private repository:
 
 ```bash
 drcode self-update

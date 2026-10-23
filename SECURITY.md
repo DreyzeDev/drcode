@@ -13,10 +13,12 @@ argument. Revoke the key in AgentRouter immediately if it may have been exposed.
 
 ## Reviewing the installer
 
-Instead of piping the installer directly to Bash, download and inspect it first:
+Clone the private repository, inspect the installer, and then run it:
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/DreyzeDev/drcode/main/install.sh
+gh auth login
+gh repo clone DreyzeDev/drcode
+cd drcode
 less install.sh
 bash install.sh
 ```

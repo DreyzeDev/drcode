@@ -26,7 +26,6 @@ tar -czf "$archive" -C "$fixture" opencode
 HOME="$home" \
 XDG_CONFIG_HOME="$home/.config" \
 XDG_DATA_HOME="$home/.local/share" \
-DRCODE_SOURCE_DIR="$PROJECT_ROOT" \
 DRCODE_ENGINE_ARCHIVE="$archive" \
 bash "$PROJECT_ROOT/install.sh"
 
@@ -35,6 +34,7 @@ config="$home/.config/drcode/opencode"
 
 [[ -x "$launcher" ]]
 [[ -x "$home/.local/share/drcode/bin/opencode" ]]
+[[ -x "$home/.local/share/drcode/uninstall.sh" ]]
 [[ -s "$config/opencode.json" ]]
 [[ -s "$config/cli.json" ]]
 [[ -s "$config/AGENTS.md" ]]
@@ -58,13 +58,13 @@ config_checksum="$(sha256sum "$config/opencode.json")"
 HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" bash "$PROJECT_ROOT/uninstall.sh"
 [[ ! -e "$launcher" ]]
 [[ ! -e "$home/.local/share/drcode/bin" ]]
+[[ -x "$home/.local/share/drcode/uninstall.sh" ]]
 [[ -s "$home/.local/share/drcode/.drcode-install" ]]
 [[ -s "$home/.config/drcode/.drcode-install" ]]
 
 HOME="$home" \
 XDG_CONFIG_HOME="$home/.config" \
 XDG_DATA_HOME="$home/.local/share" \
-DRCODE_SOURCE_DIR="$PROJECT_ROOT" \
 DRCODE_ENGINE_ARCHIVE="$archive" \
 bash "$PROJECT_ROOT/install.sh" >/dev/null
 [[ "$(sha256sum "$config/opencode.json")" == "$config_checksum" ]]
