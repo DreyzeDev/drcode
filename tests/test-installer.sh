@@ -24,6 +24,8 @@ chmod 755 "$fixture/opencode"
 tar -czf "$archive" -C "$fixture" opencode
 
 HOME="$home" \
+XDG_CONFIG_HOME="$home/.config" \
+XDG_DATA_HOME="$home/.local/share" \
 DRCODE_SOURCE_DIR="$PROJECT_ROOT" \
 DRCODE_ENGINE_ARCHIVE="$archive" \
 bash "$PROJECT_ROOT/install.sh"
@@ -44,31 +46,33 @@ printf 'test-key\n' >"$home/.config/drcode/agentrouter.key"
 chmod 600 "$home/.config/drcode/agentrouter.key"
 [[ "$(stat -c '%a' "$home/.config/drcode/agentrouter.key")" == "600" ]]
 
-HOME="$home" "$launcher" doctor >/dev/null
+HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" "$launcher" doctor >/dev/null
 
 arguments="$temporary_directory/arguments"
-HOME="$home" DRCODE_TEST_ARGUMENTS="$arguments" "$launcher" --model sol --help
+HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" DRCODE_TEST_ARGUMENTS="$arguments" "$launcher" --model sol --help
 grep -Fxq -- '--standalone' "$arguments"
 grep -Fxq -- '--model' "$arguments"
 grep -Fxq -- 'agentrouter/gpt-6.1-sol' "$arguments"
 
-HOME="$home" DRCODE_TEST_ARGUMENTS="$arguments" "$launcher" models
+HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" DRCODE_TEST_ARGUMENTS="$arguments" "$launcher" models
 [[ "$(sed -n '1p' "$arguments")" == "models" ]]
 [[ "$(sed -n '2p' "$arguments")" == "--standalone" ]]
 
 config_checksum="$(sha256sum "$config/opencode.json")"
-HOME="$home" bash "$PROJECT_ROOT/uninstall.sh"
+HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" bash "$PROJECT_ROOT/uninstall.sh"
 [[ ! -e "$launcher" ]]
 [[ ! -e "$home/.local/share/drcode" ]]
 [[ -s "$home/.config/drcode/agentrouter.key" ]]
 
 HOME="$home" \
+XDG_CONFIG_HOME="$home/.config" \
+XDG_DATA_HOME="$home/.local/share" \
 DRCODE_SOURCE_DIR="$PROJECT_ROOT" \
 DRCODE_ENGINE_ARCHIVE="$archive" \
 bash "$PROJECT_ROOT/install.sh" >/dev/null
 [[ "$(sha256sum "$config/opencode.json")" == "$config_checksum" ]]
 
-HOME="$home" bash "$PROJECT_ROOT/uninstall.sh" --purge
+HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" bash "$PROJECT_ROOT/uninstall.sh" --purge
 [[ ! -e "$home/.local/bin/drcode" ]]
 [[ ! -e "$home/.config/drcode" ]]
 
