@@ -58,7 +58,7 @@ run_remote_script() {
     "repos/DreyzeDev/drcode/contents/$repository_path?ref=$DRCODE_REPOSITORY_REF" >"$temporary"; then
     :
   else
-    fail "не удалось получить $repository_path из приватного репозитория; выполните вход через gh auth login"
+    fail "не удалось получить $repository_path из репозитория; проверьте подключение к сети"
   fi
 
   bash "$temporary" "$@"

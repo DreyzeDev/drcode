@@ -13,11 +13,10 @@ argument. Revoke the key in AgentRouter immediately if it may have been exposed.
 
 ## Reviewing the installer
 
-Clone the private repository, inspect the installer, and then run it:
+Clone the repository, inspect the installer, and then run it:
 
 ```bash
-gh auth login
-gh repo clone DreyzeDev/drcode
+git clone https://github.com/DreyzeDev/drcode
 cd drcode
 less install.sh
 bash install.sh
