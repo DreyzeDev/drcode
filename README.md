@@ -16,10 +16,10 @@ DrCode is a small, security-conscious Linux distribution layer around OpenCode. 
 ## Features
 
 - OpenCode's terminal coding workflow and tools.
-- AgentRouter and OxionAI models (GPT-6.1 Sol, GPT-6 Astra, GPT-5.6 Sol).
+- AgentRouter models (GPT-6.1 Sol, GPT-6 Astra, GPT-5.6 Sol) and OxionAI models (Claude Opus 5.5, GPT-5.5 Pro, GPT-5.6 Sol, GLM 5.3, Kimi K3 and more).
 - Dedicated configuration and session database, separate from a regular OpenCode setup.
 - Built-in connection dialogs: every user enters their own API key locally.
-- Short model aliases: `sol`, `astra`, `gpt5`, `oxion-sol`, `oxion-astra`, `oxion-gpt5`.
+- Short model aliases: `sol`, `astra`, `gpt5`, `oxion-sol`, `oxion-astra`, `oxion-gpt5`, `oxion-opus`.
 - User-local installation: root access is not required.
 - Linux x64, x64 baseline, and ARM64 support on glibc and musl systems.
 
@@ -55,7 +55,7 @@ drcode ~/code/my-project
 ```
 
 Enter your prompt — if no integration is connected, the connection window opens immediately:
-choose **AgentRouter (DrCode)** and/or **OxionAI** and enter the Base URL (`https://agentrouter.org/v1` / `https://api.oxion.ai/v1`)
+choose **AgentRouter (DrCode)** and/or **OxionAI** and enter the Base URL (`https://agentrouter.org/v1` / `https://oxionai.com/v1`)
 and **your own API key**. Then open `/models` and choose a model.
 
 Base URLs are preconfigured; only the key belongs to the user. If the connection window was dismissed,

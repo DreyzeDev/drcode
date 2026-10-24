@@ -1,12 +1,16 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "model": "agentrouter/gpt-6.1-sol",
-  "providers": {
+  "provider": {
     "agentrouter": {
+      "npm": "@ai-sdk/openai-compatible",
       "name": "AgentRouter (DrCode)",
-      "package": "@opencode/ai/providers/openai-compatible",
-      "settings": {
-        "baseURL": "https://agentrouter.org/v1"
+      "options": {
+        "baseURL": "https://agentrouter.org/v1",
+        "headers": {
+          "User-Agent": "codex_cli_rs/0.101.0 (Mac OS; arm64)",
+          "Originator": "codex_cli_rs"
+        }
       },
       "models": {
         "gpt-6.1-sol": {
@@ -21,21 +25,26 @@
       }
     },
     "oxionai": {
+      "npm": "@ai-sdk/openai-compatible",
       "name": "OxionAI",
-      "package": "@opencode/ai/providers/openai-compatible",
-      "settings": {
-        "baseURL": "https://api.oxion.ai/v1"
+      "options": {
+        "baseURL": "https://oxionai.com/v1"
       },
       "models": {
-        "gpt-6.1-sol": {
-          "name": "GPT-6.1 Sol — OxionAI"
-        },
-        "gpt-6-astra": {
-          "name": "GPT-6 Astra — OxionAI"
-        },
-        "gpt-5.6-sol": {
-          "name": "GPT-5.6 Sol — OxionAI"
-        }
+        "claude-opus-5.5": { "name": "Claude Opus 5.5 — flagship" },
+        "claude-sonnet-5": { "name": "Claude Sonnet 5 — balanced coding" },
+        "claude-opus-4.8": { "name": "Claude Opus 4.8" },
+        "gpt-5.5-pro": { "name": "GPT-5.5 Pro — deep reasoning" },
+        "gpt-5.5": { "name": "GPT-5.5" },
+        "gpt-5.6-sol": { "name": "GPT-5.6 Sol — coding" },
+        "gemini-3.1-pro": { "name": "Gemini 3.1 Pro — long context" },
+        "gemini-3.7-flash": { "name": "Gemini 3.7 Flash — fast" },
+        "glm-5.3": { "name": "GLM 5.3 — bilingual agent" },
+        "kimi-k3": { "name": "Kimi K3 — long context" },
+        "deepseek-v4-pro-max": { "name": "DeepSeek V4 Pro Max" },
+        "deepseek-v4-flash-0731": { "name": "DeepSeek V4 Flash — fast coding" },
+        "qwen3.8-max": { "name": "Qwen 3.8 Max" },
+        "grok-4.6": { "name": "Grok 4.6" }
       }
     }
   }
