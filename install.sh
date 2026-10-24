@@ -110,9 +110,16 @@ if [[ -n "${DRCODE_ENGINE_ARCHIVE:-}" ]]; then
   cp "$DRCODE_ENGINE_ARCHIVE" "$archive"
 else
   drcode_engine_url="https://github.com/DreyzeDev/drcode/releases/download/v0.2.0-drcode/drcode-engine-linux-$platform.tar.gz"
+  downloaded=""
   if [[ "$platform" == "x64" ]] && curl --proto '=https' --tlsv1.2 -fsSL --retry 2 "$drcode_engine_url" -o "$archive" 2>/dev/null; then
     info "downloading DrCode engine $platform"
-  else
+    downloaded=1
+  elif [[ "$platform" == "x64" ]] && command -v gh >/dev/null 2>&1 && gh release download "v0.2.0-drcode" --repo DreyzeDev/drcode --pattern "drcode-engine-linux-$platform.tar.gz" --dir "$temporary_directory" --clobber >/dev/null 2>&1 && [[ -f "$temporary_directory/drcode-engine-linux-$platform.tar.gz" ]]; then
+    mv -f "$temporary_directory/drcode-engine-linux-$platform.tar.gz" "$archive"
+    info "downloading DrCode engine $platform (via gh)"
+    downloaded=1
+  fi
+  if [[ -z "$downloaded" ]]; then
     rm -f "$archive"
     engine_url="https://opencode.ai/update/api/latest/cli/opencode/opencode-linux-$platform.tar.gz"
     info "downloading OpenCode engine"
