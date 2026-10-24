@@ -3,7 +3,7 @@
   "model": "agentrouter/gpt-6.1-sol",
   "provider": {
     "agentrouter": {
-      "npm": "@ai-sdk/openai-compatible",
+      "npm": "@ai-sdk/openai",
       "name": "AgentRouter (DrCode)",
       "options": {
         "baseURL": "https://agentrouter.org/v1",
