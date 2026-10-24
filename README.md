@@ -16,10 +16,10 @@ DrCode is a small, security-conscious Linux distribution layer around OpenCode. 
 ## Features
 
 - OpenCode's terminal coding workflow and tools.
-- AgentRouter models including GPT-6.1 Sol, GPT-6 Astra, and GPT-5.6 Sol.
+- AgentRouter and OxionAI models (GPT-6.1 Sol, GPT-6 Astra, GPT-5.6 Sol).
 - Dedicated configuration and session database, separate from a regular OpenCode setup.
-- Built-in connection dialog: every user enters their own AgentRouter API key locally.
-- Short model aliases: `sol`, `astra`, and `gpt5`.
+- Built-in connection dialogs: every user enters their own API key locally.
+- Short model aliases: `sol`, `astra`, `gpt5`, `oxion-sol`, `oxion-astra`, `oxion-gpt5`.
 - User-local installation: root access is not required.
 - Linux x64, x64 baseline, and ARM64 support on glibc and musl systems.
 
@@ -54,9 +54,12 @@ Or open a specific project:
 drcode ~/code/my-project
 ```
 
-Open `/connect`, choose **AgentRouter (DrCode)**, and enter your own API key in the connection dialog. The AgentRouter Base URL (`https://agentrouter.org/v1`) is already configured. Then open `/models` and choose a model.
+Enter your prompt — if no integration is connected, the connection window opens immediately:
+choose **AgentRouter (DrCode)** and/or **OxionAI** and enter the Base URL (`https://agentrouter.org/v1` / `https://api.oxion.ai/v1`)
+and **your own API key**. Then open `/models` and choose a model.
 
-Credentials are stored by OpenCode only in DrCode's dedicated local database. They are never downloaded from or uploaded to this repository.
+Base URLs are preconfigured; only the key belongs to the user. If the connection window was dismissed,
+reopen it with `/connect`. Credentials stay in DrCode's dedicated local database and are never stored in this repository.
 
 If `~/.local/bin` is not in `PATH`, add it to your shell configuration:
 
@@ -79,10 +82,15 @@ drcode run "Explain this repository"
 # Continue the previous session
 drcode --continue
 
-# Select models with aliases
+# Select models with aliases (AgentRouter)
 drcode --model sol
 drcode --model astra
 drcode --model gpt5
+
+# OxionAI
+drcode --model oxion-sol
+drcode --model oxion-astra
+drcode --model oxion-gpt5
 
 # Verify the installation without revealing secrets
 drcode doctor
@@ -95,7 +103,7 @@ OpenCode commands, tools, sessions, permissions, and project configuration remai
 | Path | Purpose |
 | --- | --- |
 | `~/.local/bin/drcode` | DrCode launcher. |
-| `~/.local/share/drcode/bin/opencode` | Official OpenCode engine. |
+| `~/.local/share/drcode/bin/opencode` | DrCode engine (or official OpenCode fallback). |
 | `~/.local/share/drcode/data/drcode.db` | Dedicated sessions and provider accounts. |
 | `~/.config/drcode/opencode/` | OpenCode and terminal configuration. |
 

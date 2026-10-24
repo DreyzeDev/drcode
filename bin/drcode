@@ -77,6 +77,15 @@ resolve_model() {
     gpt5 | gpt-5.6-sol)
       printf '%s\n' 'agentrouter/gpt-5.6-sol'
       ;;
+    oxion-sol)
+      printf '%s\n' 'oxionai/gpt-6.1-sol'
+      ;;
+    oxion-astra)
+      printf '%s\n' 'oxionai/gpt-6-astra'
+      ;;
+    oxion-gpt5)
+      printf '%s\n' 'oxionai/gpt-5.6-sol'
+      ;;
     */*)
       printf '%s\n' "$1"
       ;;

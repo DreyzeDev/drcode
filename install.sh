@@ -109,9 +109,15 @@ if [[ -n "${DRCODE_ENGINE_ARCHIVE:-}" ]]; then
   [[ -f "$DRCODE_ENGINE_ARCHIVE" ]] || fail "архив не найден: $DRCODE_ENGINE_ARCHIVE"
   cp "$DRCODE_ENGINE_ARCHIVE" "$archive"
 else
-  engine_url="https://opencode.ai/update/api/latest/cli/opencode/opencode-linux-$platform.tar.gz"
-  info "downloading OpenCode engine"
-  curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "$engine_url" -o "$archive"
+  drcode_engine_url="https://github.com/DreyzeDev/drcode/releases/download/v0.2.0-drcode/drcode-engine-linux-$platform.tar.gz"
+  if [[ "$platform" == "x64" ]] && curl --proto '=https' --tlsv1.2 -fsSL --retry 2 "$drcode_engine_url" -o "$archive" 2>/dev/null; then
+    info "downloading DrCode engine $platform"
+  else
+    rm -f "$archive"
+    engine_url="https://opencode.ai/update/api/latest/cli/opencode/opencode-linux-$platform.tar.gz"
+    info "downloading OpenCode engine"
+    curl --proto '=https' --tlsv1.2 -fsSL --retry 3 "$engine_url" -o "$archive"
+  fi
 fi
 
 archive_entries="$(tar -tzf "$archive")"
@@ -184,9 +190,9 @@ printf '\nDrCode installed successfully.\n'
 info "launcher: $DRCODE_BIN_DIR/drcode"
 info "config:   $DRCODE_CONFIG_HOME"
 printf '\nNext steps:\n'
-printf '  1. drcode ~/path/to/project\n'
-printf '  2. Open /connect and select AgentRouter\n'
-printf '  3. Enter your own AgentRouter API key\n'
+printf '  1. drcode ~/path/to/project and type your first prompt\n'
+printf '     (connection window opens immediately if no key is connected)\n'
+printf '  2. Choose AgentRouter and/or OxionAI, enter your own API key\n'
 
 case ":$PATH:" in
   *":$DRCODE_BIN_DIR:"*) ;;

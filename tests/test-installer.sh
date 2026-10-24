@@ -50,6 +50,9 @@ grep -Fxq -- '--standalone' "$arguments"
 grep -Fxq -- '--model' "$arguments"
 grep -Fxq -- 'agentrouter/gpt-6.1-sol' "$arguments"
 
+HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" DRCODE_TEST_ARGUMENTS="$arguments" "$launcher" --model oxion-sol --help
+grep -Fxq -- 'oxionai/gpt-6.1-sol' "$arguments"
+
 HOME="$home" XDG_CONFIG_HOME="$home/.config" XDG_DATA_HOME="$home/.local/share" DRCODE_TEST_ARGUMENTS="$arguments" "$launcher" models
 [[ "$(sed -n '1p' "$arguments")" == "models" ]]
 [[ "$(sed -n '2p' "$arguments")" == "--standalone" ]]
